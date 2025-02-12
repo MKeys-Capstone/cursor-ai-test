@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "@emotion/styled";
 import DeckInput from "./components/DeckInput";
 import PricedSection from "./components/PricedSection";
@@ -32,6 +32,28 @@ const LoadingMessage = styled.div`
   color: #666;
 `;
 
+const StorageInfo = styled.div`
+  text-align: center;
+  color: #666;
+  font-size: 14px;
+  margin-top: 10px;
+`;
+
+const ClearButton = styled.button`
+  background: none;
+  border: none;
+  color: #ff4444;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  font-size: 14px;
+  margin-left: 10px;
+
+  &:hover {
+    color: #ff0000;
+  }
+`;
+
 function organizeDeckByPrice(cards: Card[]): PricedDeckSection[] {
   const sections: PricedDeckSection[] = [
     { title: "Budget Cards (Under $1)", cards: [], totalValue: 0 },
@@ -58,10 +80,27 @@ function organizeDeckByPrice(cards: Card[]): PricedDeckSection[] {
   return sections.filter((section) => section.cards.length > 0);
 }
 
+const STORAGE_KEY = "mtg-deck-viewer-data";
+
 function App() {
   const [pricedSections, setPricedSections] = useState<PricedDeckSection[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+
+  // Load saved deck data on initial mount
+  useEffect(() => {
+    const savedData = localStorage.getItem(STORAGE_KEY);
+    if (savedData) {
+      try {
+        const { sections, timestamp } = JSON.parse(savedData);
+        setPricedSections(sections);
+        setLastUpdated(new Date(timestamp).toLocaleString());
+      } catch (err) {
+        console.error("Error loading saved deck:", err);
+      }
+    }
+  }, []);
 
   const handleDeckSubmit = async (deckList: string) => {
     setLoading(true);
@@ -70,6 +109,17 @@ function App() {
       const fetchedCards = await fetchDeckList(deckList);
       const organizedSections = organizeDeckByPrice(fetchedCards);
       setPricedSections(organizedSections);
+
+      // Save to local storage
+      const timestamp = new Date().toISOString();
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({
+          sections: organizedSections,
+          timestamp,
+        })
+      );
+      setLastUpdated(new Date(timestamp).toLocaleString());
     } catch (err) {
       setError(
         "Failed to load deck. Please check your decklist and try again."
@@ -78,6 +128,12 @@ function App() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const clearSavedDeck = () => {
+    localStorage.removeItem(STORAGE_KEY);
+    setPricedSections([]);
+    setLastUpdated(null);
   };
 
   return (
@@ -92,6 +148,13 @@ function App() {
         <div style={{ color: "red", textAlign: "center", margin: "20px 0" }}>
           {error}
         </div>
+      )}
+
+      {lastUpdated && (
+        <StorageInfo>
+          Last updated: {lastUpdated}
+          <ClearButton onClick={clearSavedDeck}>Clear saved deck</ClearButton>
+        </StorageInfo>
       )}
 
       <ContentContainer>
