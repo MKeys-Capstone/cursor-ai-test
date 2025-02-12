@@ -12,6 +12,16 @@ interface Card {
     };
   }>;
   quantity: number;
+  prices: {
+    usd: string | null;
+    usd_foil: string | null;
+  };
+}
+
+interface PricedDeckSection {
+  title: string;
+  cards: Card[];
+  totalValue: number;
 }
 
 interface DeckList {
@@ -19,4 +29,4 @@ interface DeckList {
   total: number;
 }
 
-export type { Card, DeckList };
+export type { Card, DeckList, PricedDeckSection };

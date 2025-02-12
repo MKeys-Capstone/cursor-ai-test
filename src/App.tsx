@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import styled from "@emotion/styled";
-import DeckInput from "../mtg-gallery/src/components/DeckInput";
-import CardGallery from "../mtg-gallery/src/components/CardGallery";
-import { fetchDeckList } from "../mtg-gallery/src/services/scryfallService";
-import { Card } from "../mtg-gallery/src/types/types";
+import DeckInput from "./components/DeckInput";
+import PricedSection from "./components/PricedSection";
+import { fetchDeckList } from "./services/scryfallService";
+import { Card, PricedDeckSection } from "./types/types";
 
 const AppContainer = styled.div`
   max-width: 1200px;
@@ -23,8 +23,34 @@ const LoadingMessage = styled.div`
   color: #666;
 `;
 
+function organizeDeckByPrice(cards: Card[]): PricedDeckSection[] {
+  const sections: PricedDeckSection[] = [
+    { title: "Budget Cards (Under $1)", cards: [], totalValue: 0 },
+    { title: "Mid-Range Cards ($1-$5)", cards: [], totalValue: 0 },
+    { title: "Premium Cards (Over $5)", cards: [], totalValue: 0 },
+  ];
+
+  cards.forEach((card) => {
+    const price = parseFloat(card.prices.usd || "0");
+    const totalPrice = price * card.quantity;
+
+    if (price <= 1) {
+      sections[0].cards.push(card);
+      sections[0].totalValue += totalPrice;
+    } else if (price <= 5) {
+      sections[1].cards.push(card);
+      sections[1].totalValue += totalPrice;
+    } else {
+      sections[2].cards.push(card);
+      sections[2].totalValue += totalPrice;
+    }
+  });
+
+  return sections.filter((section) => section.cards.length > 0);
+}
+
 function App() {
-  const [cards, setCards] = useState<Card[]>([]);
+  const [pricedSections, setPricedSections] = useState<PricedDeckSection[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -33,7 +59,8 @@ function App() {
     setError(null);
     try {
       const fetchedCards = await fetchDeckList(deckList);
-      setCards(fetchedCards);
+      const organizedSections = organizeDeckByPrice(fetchedCards);
+      setPricedSections(organizedSections);
     } catch (err) {
       setError(
         "Failed to load deck. Please check your decklist and try again."
@@ -61,7 +88,9 @@ function App() {
       {loading ? (
         <LoadingMessage>Loading cards...</LoadingMessage>
       ) : (
-        cards.length > 0 && <CardGallery cards={cards} />
+        pricedSections.map((section, index) => (
+          <PricedSection key={index} section={section} />
+        ))
       )}
     </AppContainer>
   );
