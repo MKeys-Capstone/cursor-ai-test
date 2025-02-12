@@ -12,14 +12,18 @@ const GalleryContainer = styled.div`
 const CardContainer = styled.div`
   position: relative;
   text-align: center;
+  cursor: pointer;
 `;
 
-const CardImage = styled.img`
+const CardImage = styled.img<{ isSelected: boolean }>`
   width: 100%;
   height: auto;
   border-radius: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  transition: transform 0.2s;
+  box-shadow: ${(props) =>
+    props.isSelected
+      ? "0 0 0 3px #4CAF50, 0 2px 4px rgba(0, 0, 0, 0.2)"
+      : "0 2px 4px rgba(0, 0, 0, 0.2)"};
+  transition: transform 0.2s, box-shadow 0.2s;
 
   &:hover {
     transform: scale(1.05);
@@ -73,10 +77,21 @@ export default function CardGallery({
   selectedCards,
   onToggleCard,
 }: CardGalleryProps) {
+  const handleCardClick = (e: React.MouseEvent, cardName: string) => {
+    // If clicking the checkbox directly, don't handle the click here
+    if ((e.target as HTMLElement).tagName === "INPUT") {
+      return;
+    }
+    onToggleCard(cardName);
+  };
+
   return (
     <GalleryContainer>
       {cards.map((card) => (
-        <CardContainer key={card.id}>
+        <CardContainer
+          key={card.id}
+          onClick={(e) => handleCardClick(e, card.name)}
+        >
           <CardImage
             src={
               card.image_uris?.normal ||
@@ -84,6 +99,7 @@ export default function CardGallery({
               "https://c2.scryfall.com/file/scryfall-card-backs/large/59/597b79b3-7d77-4261-871a-60dd17403388.jpg"
             }
             alt={card.name}
+            isSelected={selectedCards[card.name] || false}
           />
           <CardQuantity>{card.quantity}x</CardQuantity>
           <CardCheckbox

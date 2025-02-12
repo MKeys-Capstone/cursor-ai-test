@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import styled from "@emotion/styled";
+import IconButton from "@mui/material/IconButton";
+import DownloadIcon from "@mui/icons-material/Download";
 import { PricedDeckSection } from "../types/types";
 import CardGallery from "./CardGallery";
 
@@ -35,9 +37,9 @@ const TotalValue = styled.span`
 `;
 
 const ContentContainer = styled.div<{ isOpen: boolean }>`
-  max-height: ${(props) => (props.isOpen ? "2000px" : "0")};
+  max-height: ${(props) => (props.isOpen ? "none" : "0")};
   transition: max-height 0.3s ease-in-out;
-  overflow: hidden;
+  overflow: ${(props) => (props.isOpen ? "visible" : "hidden")};
 `;
 
 const HeaderControls = styled.div`
@@ -46,17 +48,12 @@ const HeaderControls = styled.div`
   gap: 15px;
 `;
 
-const DownloadButton = styled.button`
-  padding: 5px 10px;
-  background-color: #4caf50;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
+const StyledIconButton = styled(IconButton)`
+  color: #4caf50;
+  padding: 8px;
 
   &:hover {
-    background-color: #45a049;
+    background-color: rgba(76, 175, 80, 0.1);
   }
 `;
 
@@ -123,9 +120,13 @@ export default function PricedSection({ section }: PricedSectionProps) {
             Total: ${section.totalValue.toFixed(2)} ({section.cards.length}{" "}
             cards)
           </TotalValue>
-          <DownloadButton onClick={downloadChecklist}>
-            Download Checklist
-          </DownloadButton>
+          <StyledIconButton
+            onClick={downloadChecklist}
+            size="small"
+            title="Download Checklist"
+          >
+            <DownloadIcon />
+          </StyledIconButton>
         </HeaderControls>
       </SectionHeader>
       <ContentContainer isOpen={isOpen}>
