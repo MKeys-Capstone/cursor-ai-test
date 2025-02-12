@@ -22,6 +22,7 @@ const SpinnerContainer = styled.div`
   flex-direction: column;
   align-items: center;
   gap: 15px;
+  margin-top: 50px;
 `;
 
 const Card = styled.div`
