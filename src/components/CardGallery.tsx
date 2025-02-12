@@ -4,9 +4,15 @@ import { Card } from "../types/types";
 
 const GalleryContainer = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
   padding: 20px;
+
+  @media (max-width: 600px) {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+    padding: 10px;
+  }
 `;
 
 const CardContainer = styled.div`
