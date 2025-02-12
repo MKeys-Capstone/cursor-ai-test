@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import styled from "@emotion/styled";
 import DeckInput from "./components/DeckInput";
 import PricedSection from "./components/PricedSection";
+import LoadingSpinner from "./components/LoadingSpinner";
 import { fetchDeckList } from "./services/scryfallService";
 import { Card, PricedDeckSection } from "./types/types";
 
@@ -23,13 +24,6 @@ const ContentContainer = styled.div`
 const Header = styled.header`
   text-align: center;
   margin-bottom: 30px;
-`;
-
-const LoadingMessage = styled.div`
-  text-align: center;
-  padding: 20px;
-  font-size: 18px;
-  color: #666;
 `;
 
 const StorageInfo = styled.div`
@@ -159,7 +153,7 @@ function App() {
 
       <ContentContainer>
         {loading ? (
-          <LoadingMessage>Loading cards...</LoadingMessage>
+          <LoadingSpinner message="Tapping for mana to find cards..." />
         ) : (
           pricedSections.map((section, index) => (
             <PricedSection key={index} section={section} />
