@@ -9,6 +9,15 @@ const AppContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+`;
+
+const ContentContainer = styled.div`
+  flex: 1;
+  overflow-y: auto;
 `;
 
 const Header = styled.header`
@@ -85,13 +94,15 @@ function App() {
         </div>
       )}
 
-      {loading ? (
-        <LoadingMessage>Loading cards...</LoadingMessage>
-      ) : (
-        pricedSections.map((section, index) => (
-          <PricedSection key={index} section={section} />
-        ))
-      )}
+      <ContentContainer>
+        {loading ? (
+          <LoadingMessage>Loading cards...</LoadingMessage>
+        ) : (
+          pricedSections.map((section, index) => (
+            <PricedSection key={index} section={section} />
+          ))
+        )}
+      </ContentContainer>
     </AppContainer>
   );
 }

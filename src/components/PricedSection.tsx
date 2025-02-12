@@ -15,17 +15,18 @@ const SectionHeader = styled.div<{ isOpen: boolean }>`
   justify-content: space-between;
   align-items: center;
   padding: 15px 20px;
-  background-color: #f5f5f5;
+  background-color: beige;
   cursor: pointer;
 
   &:hover {
-    background-color: #eee;
+    background-color: gray;
   }
 `;
 
 const SectionTitle = styled.h3`
   margin: 0;
   font-size: 18px;
+  color: black;
 `;
 
 const TotalValue = styled.span`
