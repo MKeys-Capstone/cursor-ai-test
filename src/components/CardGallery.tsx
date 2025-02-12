@@ -37,11 +37,42 @@ const CardQuantity = styled.div`
   font-weight: bold;
 `;
 
+const CardCheckbox = styled.input`
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  opacity: 0.8;
+
+  &:hover {
+    opacity: 1;
+  }
+`;
+
+const CardPrice = styled.div`
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: #357abd;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-weight: bold;
+`;
+
 interface CardGalleryProps {
   cards: Card[];
+  selectedCards: { [key: string]: boolean };
+  onToggleCard: (cardName: string) => void;
 }
 
-export default function CardGallery({ cards }: CardGalleryProps) {
+export default function CardGallery({
+  cards,
+  selectedCards,
+  onToggleCard,
+}: CardGalleryProps) {
   return (
     <GalleryContainer>
       {cards.map((card) => (
@@ -55,6 +86,12 @@ export default function CardGallery({ cards }: CardGalleryProps) {
             alt={card.name}
           />
           <CardQuantity>{card.quantity}x</CardQuantity>
+          <CardCheckbox
+            type="checkbox"
+            checked={selectedCards[card.name] || false}
+            onChange={() => onToggleCard(card.name)}
+          />
+          <CardPrice>${card.prices.usd || "0.00"}</CardPrice>
         </CardContainer>
       ))}
     </GalleryContainer>

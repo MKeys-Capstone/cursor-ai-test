@@ -40,23 +40,100 @@ const ContentContainer = styled.div<{ isOpen: boolean }>`
   overflow: hidden;
 `;
 
+const HeaderControls = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 15px;
+`;
+
+const DownloadButton = styled.button`
+  padding: 5px 10px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+
+  &:hover {
+    background-color: #45a049;
+  }
+`;
+
 interface PricedSectionProps {
   section: PricedDeckSection;
 }
 
 export default function PricedSection({ section }: PricedSectionProps) {
   const [isOpen, setIsOpen] = useState(true);
+  const [selectedCards, setSelectedCards] = useState<{
+    [key: string]: boolean;
+  }>({});
+
+  const handleHeaderClick = (e: React.MouseEvent) => {
+    // Prevent toggling when clicking the download button
+    if ((e.target as HTMLElement).closest("button")) {
+      e.stopPropagation();
+      return;
+    }
+    setIsOpen(!isOpen);
+  };
+
+  const toggleCard = (cardName: string) => {
+    setSelectedCards((prev) => ({
+      ...prev,
+      [cardName]: !prev[cardName],
+    }));
+  };
+
+  const downloadChecklist = () => {
+    const checklist = section.cards
+      .map(
+        (card) =>
+          `[${selectedCards[card.name] ? "x" : " "}] ${card.quantity}x ${
+            card.name
+          } - $${card.prices.usd || "0.00"}`
+      )
+      .join("\n");
+
+    const header = `${
+      section.title
+    }\nTotal Value: $${section.totalValue.toFixed(2)}\n\n`;
+    const content = header + checklist;
+
+    const blob = new Blob([content], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${section.title
+      .toLowerCase()
+      .replace(/\s+/g, "-")}-checklist.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <SectionContainer>
-      <SectionHeader isOpen={isOpen} onClick={() => setIsOpen(!isOpen)}>
+      <SectionHeader isOpen={isOpen} onClick={handleHeaderClick}>
         <SectionTitle>{section.title}</SectionTitle>
-        <TotalValue>
-          Total: ${section.totalValue.toFixed(2)} ({section.cards.length} cards)
-        </TotalValue>
+        <HeaderControls onClick={(e) => e.stopPropagation()}>
+          <TotalValue>
+            Total: ${section.totalValue.toFixed(2)} ({section.cards.length}{" "}
+            cards)
+          </TotalValue>
+          <DownloadButton onClick={downloadChecklist}>
+            Download Checklist
+          </DownloadButton>
+        </HeaderControls>
       </SectionHeader>
       <ContentContainer isOpen={isOpen}>
-        <CardGallery cards={section.cards} />
+        <CardGallery
+          cards={section.cards}
+          selectedCards={selectedCards}
+          onToggleCard={toggleCard}
+        />
       </ContentContainer>
     </SectionContainer>
   );
