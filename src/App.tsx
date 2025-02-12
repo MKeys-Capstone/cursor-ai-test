@@ -153,7 +153,7 @@ function App() {
 
       <ContentContainer>
         {loading ? (
-          <LoadingSpinner message="Tapping for mana..." />
+          <LoadingSpinner />
         ) : (
           pricedSections.map((section, index) => (
             <PricedSection key={index} section={section} />

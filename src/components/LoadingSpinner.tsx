@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { keyframes } from "@emotion/react";
 
@@ -15,6 +15,11 @@ const tapUntapAnimation = keyframes`
   100% {
     transform: rotate(0deg);
   }
+`;
+
+const fadeAnimation = keyframes`
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
 `;
 
 const SpinnerContainer = styled.div`
@@ -66,19 +71,36 @@ const LoadingText = styled.div`
   font-size: 18px;
   font-weight: bold;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  animation: ${fadeAnimation} 2s infinite;
+  min-height: 27px;
 `;
+
+const LOADING_MESSAGES = [
+  "Untapping...",
+  "Keeping up...",
+  "Drawing...",
+  "Tap out, gg",
+];
 
 interface LoadingSpinnerProps {
   message?: string;
 }
 
-const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
-  message = "Summoning cards...",
-}) => {
+const LoadingSpinner: React.FC<LoadingSpinnerProps> = () => {
+  const [messageIndex, setMessageIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setMessageIndex((prev) => (prev + 1) % LOADING_MESSAGES.length);
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <SpinnerContainer>
       <Card />
-      <LoadingText>{message}</LoadingText>
+      <LoadingText>{LOADING_MESSAGES[messageIndex]}</LoadingText>
     </SpinnerContainer>
   );
 };
